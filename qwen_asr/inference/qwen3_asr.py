@@ -205,7 +205,7 @@ class Qwen3ASRModel:
 
         model = AutoModel.from_pretrained(pretrained_model_name_or_path, **kwargs)
 
-        processor = AutoProcessor.from_pretrained(pretrained_model_name_or_path, fix_mistral_regex=True)
+        processor = AutoProcessor.from_pretrained(pretrained_model_name_or_path)
 
         forced_aligner_model = None
         if forced_aligner is not None:
