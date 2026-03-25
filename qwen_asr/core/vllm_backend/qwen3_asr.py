@@ -104,10 +104,7 @@ from ..transformers_backend.processing_qwen3_asr import (
     Qwen3ASRProcessor,
 )
 
-try:
-    from vllm.multimodal.profiling import BaseDummyInputsBuilder
-except:
-    from vllm.multimodal.processing import BaseDummyInputsBuilder
+from vllm.multimodal.processing import BaseDummyInputsBuilder
 
 logger = init_logger(__name__)
 
@@ -546,8 +543,8 @@ class Qwen3ASRProcessingInfo(BaseProcessingInfo):
     def get_supported_mm_limits(self) -> Mapping[str, int | None]:
         return {"audio": None}
 
-    def build_data_parser(self) -> MultiModalDataParser:
-        """Build data parser for vllm >= 0.15.2"""
+    def get_data_parser(self) -> MultiModalDataParser:
+        """get data parser for vllm >= 0.17.0"""
         feature_extractor = self.get_feature_extractor()
         return Qwen3ASRMultiModalDataParser(
             target_sr=feature_extractor.sampling_rate,
@@ -818,7 +815,6 @@ class Qwen3ASRForConditionalGeneration(
             input_ids,
             self.language_model.embed_input_ids,
             is_multimodal=is_multimodal,
-            handle_oov_mm_token=handle_oov_mm_token,
         )
 
         if multimodal_embeddings is None or len(multimodal_embeddings) == 0:

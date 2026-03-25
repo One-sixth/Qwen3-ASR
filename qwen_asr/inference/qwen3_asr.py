@@ -48,16 +48,8 @@ from .utils import (
 
 try:
     from vllm import ModelRegistry
-
-    try:
-        from vllm.transformers_utils.config import _CONFIG_REGISTRY
-        _CONFIG_REGISTRY["qwen3_asr"] = Qwen3ASRConfig
-    except (ImportError, AttributeError):
-        pass
-
-    model_class_path = "qwen_asr.core.vllm_backend.qwen3_asr:Qwen3ASRForConditionalGeneration"
-    ModelRegistry.register_model("qwen3_asr", model_class_path)
-    ModelRegistry.register_model("Qwen3ASRForConditionalGeneration", model_class_path)
+    from qwen_asr.core.vllm_backend import Qwen3ASRForConditionalGeneration
+    ModelRegistry.register_model("Qwen3ASRForConditionalGeneration", Qwen3ASRForConditionalGeneration)
 except Exception as e:
     pass
 
@@ -139,7 +131,7 @@ class ASRStreamingState:
 class Qwen3ASRModel:
     """
     Unified inference wrapper for Qwen3-ASR with two backends:
-      - Transformers backend 
+      - Transformers backend
       - vLLM backend
 
     It optionally supports time stamp output via Qwen3-ForcedAligner.
@@ -276,7 +268,7 @@ class Qwen3ASRModel:
 
         llm = vLLM(model=model, **kwargs)
 
-        processor = Qwen3ASRProcessor.from_pretrained(model, fix_mistral_regex=True)
+        processor = Qwen3ASRProcessor.from_pretrained(model) #, fix_mistral_regex=True)
         sampling_params = SamplingParams(**({"temperature": 0.0, "max_tokens": max_new_tokens}))
 
         forced_aligner_model = None
@@ -563,8 +555,8 @@ class Qwen3ASRModel:
             return None
         items = []
         for it in result.items:
-            items.append(type(it)(text=it.text, 
-                                  start_time=round(it.start_time + offset_sec, 3), 
+            items.append(type(it)(text=it.text,
+                                  start_time=round(it.start_time + offset_sec, 3),
                                   end_time=round(it.end_time + offset_sec, 3)))
         return type(result)(items=items)
 
